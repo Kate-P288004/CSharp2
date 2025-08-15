@@ -4,96 +4,92 @@ namespace literatePrimes
 {
     public class PrimeGenerator
     {
-        //Internal state for current generation run
+        // Internal state for current generation run
         private static int[] primes;
-        private static List<int> multiplesOfPrimeFactors;
+        private static List<int> primeMultiples;
+
+        private const int FirstPrime = 2;
 
         /// <summary>
-        /// Returns the first prime number
+        /// Returns the first n prime numbers.
         /// </summary>
-       
         protected static int[] generate(int n)
         {
             if (n <= 0) return System.Array.Empty<int>();
 
             primes = new int[n];
-            multiplesOfPrimeFactors = new List<int>();
+            primeMultiples = new List<int>();
 
-            set2AsFirstPrime();
-            checkOddNumbersForSubsequentPrimes();
+            setFirstPrime();
+            findOtherPrimes();
             return primes;
         }
 
-        private static void set2AsFirstPrime()
+        private static void setFirstPrime()
         {
-            primes[0] = 2;
-            //Track the first prime factor multiples
-            multiplesOfPrimeFactors.Add(2);
+            primes[0] = FirstPrime;
+            // Track the first prime factor multiples
+            primeMultiples.Add(FirstPrime);
         }
 
-        private static void checkOddNumbersForSubsequentPrimes()
+        private static void findOtherPrimes()
         {
-            int primeIndex = 1;
-            //odd numbers start from 3
-            for (int candidate = 3; primeIndex < primes.Length; candidate += 2)
+            int index = 1; // odd numbers start from 3
+            for (int candidate = 3; index < primes.Length; candidate += 2)
             {
                 if (isPrime(candidate))
-                    primes[primeIndex++] = candidate;
+                    primes[index++] = candidate;
             }
         }
 
         private static bool isPrime(int candidate)
         {
-            if (IsSquareOfNextPrimeFactor(candidate))
+            if (isSquareOfNextPrime(candidate))
             {
-                //when hit p^2,begin tracking the new prime factor multiples
-                multiplesOfPrimeFactors.Add(candidate);
+                // when hit p^2, begin tracking the new prime factor multiples
+                primeMultiples.Add(candidate);
                 return false;
             }
 
-            return isNotMultipleOfAnyPreviousPrimeFactor(candidate); ;
+            return isNotMultiple(candidate);
         }
 
-        private static bool IsSquareOfNextPrimeFactor(int candidate)
+        private static bool isSquareOfNextPrime(int candidate)
         {
-            //The next prime factor is the one at index equal to how many multiples we have track.
-            int nextIndex = multiplesOfPrimeFactors.Count;
+            // the next prime factor index equals how many multiples we track
+            int nextIndex = primeMultiples.Count;
+            if (nextIndex >= primes.Length) return false;
 
-            if (nextIndex >= primes.Length) return false; 
-
-            int nextLargerPrimeFactor = primes[nextIndex];
-            int leastRelevantMultiple = nextLargerPrimeFactor * nextLargerPrimeFactor;
-
-            return candidate == leastRelevantMultiple;
+            int nextPrime = primes[nextIndex];
+            return candidate == nextPrime * nextPrime;
         }
 
-        private static bool isNotMultipleOfAnyPreviousPrimeFactor(int candidate)
+        private static bool isNotMultiple(int candidate)
         {
-            //Start at 1 to skip the prime 2
-            for (int n = 1; n < multiplesOfPrimeFactors.Count; n++)
+            // start at 1 to skip the prime 2
+            for (int i = 1; i < primeMultiples.Count; i++)
             {
-                if (isMultipleOfNthPrimeFactor(candidate, n))
+                if (isMultiple(candidate, i))
                     return false;
             }
             return true;
         }
 
-        private static bool isMultipleOfNthPrimeFactor(int candidate, int n)
+        private static bool isMultiple(int candidate, int i)
         {
-            return candidate ==
-                   smallestOddNthMultipleNotLessThanCandidate(candidate, n);
+            return candidate == nextOddMultiple(candidate, i);
         }
 
-        private static int smallestOddNthMultipleNotLessThanCandidate(int candidate, int n)
+        private static int nextOddMultiple(int candidate, int i)
         {
-            int multiple = multiplesOfPrimeFactors[n];
-            //Multiple by twice the prime 
+            int multiple = primeMultiples[i];
+            // step by twice the prime
             while (multiple < candidate)
             {
-                multiple += 2 * primes[n];
+                multiple += 2 * primes[i];
             }
 
-            multiplesOfPrimeFactors[n] = multiple;
+            primeMultiples[i] = multiple;
             return multiple;
         }
     }
