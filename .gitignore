@@ -1,0 +1,16 @@
+# Ignore Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+
+# Visual Studio cache
+*.db
+*.opendb
+*.VC.db
+*.VC.VC.opendb
